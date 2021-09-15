@@ -15,12 +15,12 @@ class OrdersList extends StatefulWidget {
 
 class _OrdersListState extends State<OrdersList> {
   List<OrderTile> orders = [
-    OrderTile("OrderName", "79145431323", false),
-    OrderTile("OrderName", "79145431323", false),
-    OrderTile("OrderName", "79145431323", false),
-    OrderTile("OrderName", "79145431323", false),
-    OrderTile("OrderName", "79145431323", false),
-    OrderTile("OrderName", "79145431323", false),
+    OrderTile("A", "1", false),
+    OrderTile("B", "2", false),
+    OrderTile("C", "3", false),
+    OrderTile("D", "4", false),
+    OrderTile("E", "5", false),
+    OrderTile("F", "6", false),
   ];
 
   @override
@@ -51,11 +51,13 @@ class _OrdersListState extends State<OrdersList> {
                 }
               })
             : null;
+        print('-----');
+        orders.forEach((e) => print('\n$e'));
       },
       leading: widget.isSelectedMode
           ? isSelected
               ? const Icon(Icons.check_circle)
-              : const Icon(Icons.check_circle_outline)
+              : const Icon(Icons.circle_outlined)
           : null,
       title: Text(name),
       subtitle: Text(phoneNumber),
