@@ -4,7 +4,7 @@ import 'order_tile.dart';
 
 class OrdersList extends StatefulWidget {
   bool isSelectedMode;
-  List<OrderTile> selectedRows;
+  List<Map<String, dynamic>> selectedRows;
 
   OrdersList(this.isSelectedMode, this.selectedRows, {Key? key})
       : super(key: key);
@@ -14,22 +14,36 @@ class OrdersList extends StatefulWidget {
 }
 
 class _OrdersListState extends State<OrdersList> {
-  List<OrderTile> orders = [
-    OrderTile("A", "1", false),
-    OrderTile("B", "2", false),
-    OrderTile("C", "3", false),
-    OrderTile("D", "4", false),
-    OrderTile("E", "5", false),
-    OrderTile("F", "6", false),
+  List<Map<String, dynamic>> orders = [
+    {
+      "isSelected": false,
+      "order": Order("A", "1"),
+    },
+    {
+      "isSelected": false,
+      "order": Order("B", "2"),
+    },
+    {
+      "isSelected": false,
+      "order": Order("C", "3"),
+    },
+    {
+      "isSelected": false,
+      "order": Order("D", "4"),
+    },
+    {
+      "isSelected": false,
+      "order": Order("E", "5"),
+    },
   ];
 
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
       itemBuilder: (context, index) => OrderItem(
-        orders[index].name,
-        orders[index].phoneNumber,
-        orders[index].isSelected,
+        orders[index]["order"].name,
+        orders[index]["order"].phoneNumber,
+        orders[index]["isSelected"],
         index,
       ),
       itemCount: orders.length,
@@ -42,12 +56,18 @@ class _OrdersListState extends State<OrdersList> {
       onTap: () {
         widget.isSelectedMode
             ? setState(() {
-                orders[index].isSelected = !orders[index].isSelected;
-                if (orders[index].isSelected) {
-                  widget.selectedRows.add(OrderTile(name, phoneNumber, true));
-                } else if (!orders[index].isSelected) {
-                  widget.selectedRows.removeWhere(
-                      (element) => element.name == orders[index].name);
+                orders[index]["isSelected"] = !orders[index]["isSelected"];
+                if (orders[index]["isSelected"]) {
+                  widget.selectedRows.add({
+                    "isSelected": true,
+                    "order": Order(
+                      name,
+                      phoneNumber,
+                    ),
+                  });
+                } else if (!orders[index]["isSelected"]) {
+                  widget.selectedRows.removeWhere((element) =>
+                      element["order"].name == orders[index]["order"].name);
                 }
               })
             : null;

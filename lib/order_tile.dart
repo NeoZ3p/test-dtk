@@ -1,14 +1,11 @@
-class OrderTile {
+class Order {
   String name, phoneNumber;
-  bool isSelected;
 
-  OrderTile(
+  Order(
     this.name,
     this.phoneNumber,
-    this.isSelected,
   );
 
   @override
-  String toString() =>
-      "OrderTile: {name: $name, phoneNumber: $phoneNumber, isSelected: $isSelected}";
+  String toString() => "Order: {name: $name, phoneNumber: $phoneNumber}";
 }
