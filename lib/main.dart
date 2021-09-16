@@ -49,21 +49,35 @@ class _MyHomePageState extends State<MyHomePage> {
           if (isSelectedMode)
             OutlinedButton(
               onPressed: () {
-                print(selectedRows);
+                selectedRows.isNotEmpty
+                    ? print(selectedRows)
+                    : showDialog(
+                        context: context,
+                        builder: (_) => AlertDialog(
+                                title: const Text("Error"),
+                                content: const Text("Select at least 1 order"),
+                                actions: [
+                                  TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                      child: const Text("Okey"))
+                                ]));
               },
-              child: Text(selectedRows.isEmpty ? "Select rows" : "Save"),
+              child: const Text("Save"),
             ),
-          FloatingActionButton(
-              onPressed: () {
-                setState(() {
-                  isSelectedMode = !isSelectedMode;
-                });
-              },
-              child: const Icon(Icons.add_a_photo)),
           const SizedBox(
             height: 25,
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          setState(() {
+            isSelectedMode = !isSelectedMode;
+          });
+        },
+        child: Icon(isSelectedMode ? Icons.cancel : Icons.add),
       ),
     );
   }
