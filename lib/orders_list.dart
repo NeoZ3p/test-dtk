@@ -5,8 +5,9 @@ import 'order_tile.dart';
 class OrdersList extends StatefulWidget {
   bool isSelectedMode;
   List<Map<String, dynamic>> selectedRows;
+  List<Map<String, dynamic>> orderList;
 
-  OrdersList(this.isSelectedMode, this.selectedRows, {Key? key})
+  OrdersList(this.isSelectedMode, this.selectedRows, this.orderList, {Key? key})
       : super(key: key);
 
   @override
@@ -14,65 +15,46 @@ class OrdersList extends StatefulWidget {
 }
 
 class _OrdersListState extends State<OrdersList> {
-  List<Map<String, dynamic>> orders = [
-    {
-      "isSelected": false,
-      "order": Order("A", "1"),
-    },
-    {
-      "isSelected": false,
-      "order": Order("B", "2"),
-    },
-    {
-      "isSelected": false,
-      "order": Order("C", "3"),
-    },
-    {
-      "isSelected": false,
-      "order": Order("D", "4"),
-    },
-    {
-      "isSelected": false,
-      "order": Order("E", "5"),
-    },
-  ];
-
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
       itemBuilder: (context, index) => OrderItem(
-        orders[index]["order"].name,
-        orders[index]["order"].phoneNumber,
-        orders[index]["isSelected"],
+        widget.orderList[index]["order"].name,
+        widget.orderList[index]["order"].phoneNumber,
+        widget.orderList[index]["isSelected"],
+        widget.orderList[index]["order"].total,
         index,
       ),
-      itemCount: orders.length,
+      itemCount: widget.orderList.length,
     );
   }
 
   Widget OrderItem(
-      String name, String phoneNumber, bool isSelected, int index) {
+      String name, String phoneNumber, bool isSelected, int total, int index) {
     return ListTile(
       onTap: () {
         widget.isSelectedMode
             ? setState(() {
-                orders[index]["isSelected"] = !orders[index]["isSelected"];
-                if (orders[index]["isSelected"]) {
+                widget.orderList[index]["isSelected"] =
+                    !widget.orderList[index]["isSelected"];
+                if (widget.orderList[index]["isSelected"]) {
                   widget.selectedRows.add({
                     "isSelected": true,
                     "order": Order(
                       name,
                       phoneNumber,
+                      total,
                     ),
                   });
-                } else if (!orders[index]["isSelected"]) {
+                } else if (!widget.orderList[index]["isSelected"]) {
                   widget.selectedRows.removeWhere((element) =>
-                      element["order"].name == orders[index]["order"].name);
+                      element["order"].name ==
+                      widget.orderList[index]["order"].name);
                 }
               })
             : null;
         print('-----');
-        orders.forEach((e) => print('\n$e'));
+        widget.orderList.forEach((e) => print('\n$e'));
       },
       leading: widget.isSelectedMode
           ? isSelected
