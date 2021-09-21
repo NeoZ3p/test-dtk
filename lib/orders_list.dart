@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 
+import 'multiselect_controller.dart';
 import 'order_tile.dart';
 
 class OrdersList extends StatefulWidget {
-  bool isSelectedMode;
-  List<Map<String, dynamic>> selectedRows;
-  List<Map<String, dynamic>> orderList;
+  const OrdersList({
+    required this.controller,
+    required this.orderList,
+    Key? key,
+  }) : super(key: key);
 
-  OrdersList(this.isSelectedMode, this.selectedRows, this.orderList, {Key? key})
-      : super(key: key);
+  final List<Order> orderList;
+  final MyMultiSelectController controller;
 
   @override
   State<OrdersList> createState() => _OrdersListState();
@@ -19,48 +22,56 @@ class _OrdersListState extends State<OrdersList> {
   Widget build(BuildContext context) {
     return ListView.builder(
       itemBuilder: (context, index) => OrderItem(
-        widget.orderList[index]["order"].name,
-        widget.orderList[index]["order"].phoneNumber,
-        widget.orderList[index]["isSelected"],
-        widget.orderList[index]["order"].total,
-        index,
+        isSelectingMode: widget.controller.isSelectingMode,
+        name: widget.orderList[index].name,
+        phoneNumber: widget.orderList[index].phoneNumber,
+        total: widget.orderList[index].total,
+        index: index,
+        isSelected: widget.controller.isSelected(index),
+        onTap: () {
+          if (widget.controller.isSelectingMode) {
+            setState(() {
+              widget.controller.toggle(index);
+            });
+          }
+        },
       ),
       itemCount: widget.orderList.length,
     );
   }
+}
 
-  Widget OrderItem(
-      String name, String phoneNumber, bool isSelected, int total, int index) {
+class OrderItem extends StatelessWidget {
+  const OrderItem(
+      {required this.isSelectingMode,
+      required this.name,
+      required this.phoneNumber,
+      required this.total,
+      required this.index,
+      required this.onTap,
+      required this.isSelected,
+      Key? key})
+      : super(key: key);
+
+  final String name, phoneNumber;
+  final int total, index;
+  final bool isSelectingMode;
+  final void Function() onTap;
+  final bool isSelected;
+
+  @override
+  Widget build(BuildContext context) {
     return ListTile(
-      onTap: () {
-        widget.isSelectedMode
-            ? setState(() {
-                widget.orderList[index]["isSelected"] =
-                    !widget.orderList[index]["isSelected"];
-                if (widget.orderList[index]["isSelected"]) {
-                  widget.selectedRows.add({
-                    "isSelected": true,
-                    "order": Order(
-                      name,
-                      phoneNumber,
-                      total,
-                    ),
-                  });
-                } else if (!widget.orderList[index]["isSelected"]) {
-                  widget.selectedRows.removeWhere((element) =>
-                      element["order"].name ==
-                      widget.orderList[index]["order"].name);
-                }
-              })
-            : null;
-        print('-----');
-        widget.orderList.forEach((e) => print('\n$e'));
-      },
-      leading: widget.isSelectedMode
+      onTap: onTap,
+      leading: isSelectingMode
           ? isSelected
-              ? const Icon(Icons.check_circle)
-              : const Icon(Icons.circle_outlined)
+              ? const Icon(Icons.check_circle, color: Colors.blue)
+              : const Icon(
+                  Icons.circle_outlined,
+                  color: Colors.blue,
+                )
           : null,
+      selected: isSelectingMode && isSelected,
       title: Text(name),
       subtitle: Text(phoneNumber),
       trailing: const CircleAvatar(

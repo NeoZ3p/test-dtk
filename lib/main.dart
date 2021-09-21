@@ -1,6 +1,8 @@
+import 'package:dtk_test/check_modal.dart';
 import 'package:dtk_test/orders_list.dart';
 import 'package:flutter/material.dart';
 
+import 'multiselect_controller.dart';
 import 'order_tile.dart';
 
 void main() {
@@ -17,53 +19,30 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(),
+      home: MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({
+  MyHomePage({
     Key? key,
   }) : super(key: key);
+
+  final List<Order> orders = [
+    Order("Dimedrol", "1", 150),
+    Order("Analgin", "2", 150),
+    Order("Smth", "3", 150),
+    Order("Wtf", "4", 150),
+    Order("Anything", "5", 150),
+  ];
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  bool isSelectedMode = false;
-  List<Map<String, dynamic>> selectedRows = [];
-  List<Map<String, dynamic>> orders = [
-    {
-      "isSelected": false,
-      "order": Order("Dimedrol", "1", 150),
-    },
-    {
-      "isSelected": false,
-      "order": Order("Analgin", "2", 150),
-    },
-    {
-      "isSelected": false,
-      "order": Order("Smth", "3", 150),
-    },
-    {
-      "isSelected": false,
-      "order": Order("Wtf", "4", 150),
-    },
-    {
-      "isSelected": false,
-      "order": Order("Anything", "5", 150),
-    },
-  ];
-
-  get getTotal {
-    num counter = 0;
-    for (var order in orders) {
-      counter += order["order"].total;
-    }
-    return counter;
-  }
+  final MyMultiSelectController controller = MyMultiSelectController();
 
   @override
   Widget build(BuildContext context) {
@@ -71,111 +50,39 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: const Text("Test-dtk"),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: OrdersList(
-              isSelectedMode,
-              selectedRows,
-              orders,
-            ),
-          ),
-          if (isSelectedMode)
-            OutlinedButton(
-              onPressed: () {
-                selectedRows.isNotEmpty
-                    ? print(selectedRows)
-                    : showDialog(
-                        context: context,
-                        builder: (_) => AlertDialog(
-                                title: const Text("Error"),
-                                content: const Text("Select at least 1 order"),
-                                actions: [
-                                  TextButton(
-                                      onPressed: () {
-                                        Navigator.pop(context);
-                                      },
-                                      child: const Text("Okey"))
-                                ]));
-              },
-              child: const Text("Start create check"),
-            ),
-          const SizedBox(
-            height: 25,
-          ),
-        ],
+      body: OrdersList(
+        controller: controller,
+        orderList: widget.orders,
       ),
-      floatingActionButton: isSelectedMode
+      floatingActionButton: controller.isSelectingMode
           ? Column(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 FloatingActionButton(
                   onPressed: () {
-                    if (selectedRows.isNotEmpty) {
-                      showDialog(
-                        context: context,
-                        builder: (_) => AlertDialog(
-                          shape: const RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(10.0))),
-                          title: const Text("Creating a check"),
-                          content: Builder(
-                            builder: (context) {
-                              // ignore: sized_box_for_whitespace
-                              return Container(
-                                height: MediaQuery.of(context).size.height,
-                                width: MediaQuery.of(context).size.width,
-                                child: Column(
-                                  children: [
-                                    Expanded(
-                                      child: ListView.builder(
-                                        itemBuilder: (context, index) =>
-                                            ListTile(
-                                          leading: Text(selectedRows[index]
-                                                  ["order"]
-                                              .name),
-                                          subtitle: Text(selectedRows[index]
-                                                  ["order"]
-                                              .phoneNumber),
-                                          trailing: const CircleAvatar(
-                                            child: Icon(Icons.person),
-                                          ),
-                                        ),
-                                        itemCount: selectedRows.length,
-                                      ),
-                                    ),
-                                    // Text(
-                                    //   selectedRows
-                                    //       .reduce((prevOrder, nextOrder) =>
-                                    //           prevOrder["order"].total +
-                                    //           nextOrder["order"].total)
-                                    //       .toString(),
-                                    // ),
-                                  ],
-                                ),
-                              );
-                            },
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                              child: const Text("Create a check"),
-                            ),
-                          ],
-                        ),
-                      );
+                    if (controller.selectedIndexes.isEmpty) {
+                      return;
                     }
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => CheckModal(
+                          initialOrders: controller.selectedIndexes
+                              .map((i) => widget.orders[i])
+                              .toList(),
+                        ),
+                      ),
+                    );
                   },
-                  child: const Icon(Icons.receipt),
+                  child: const Icon(Icons.print),
                 ),
                 const SizedBox(height: 20),
                 FloatingActionButton(
                   backgroundColor: Colors.red,
                   onPressed: () {
                     setState(() {
-                      isSelectedMode = false;
+                      controller.isSelectingMode = false;
+                      controller.selectedIndexes.clear();
                     });
                   },
                   child: const Icon(Icons.close),
@@ -185,10 +92,10 @@ class _MyHomePageState extends State<MyHomePage> {
           : FloatingActionButton(
               onPressed: () {
                 setState(() {
-                  isSelectedMode = true;
+                  controller.isSelectingMode = true;
                 });
               },
-              child: const Icon(Icons.add),
+              child: const Icon(Icons.receipt),
             ),
     );
   }
